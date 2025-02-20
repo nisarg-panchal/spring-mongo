@@ -1,0 +1,37 @@
+#Service stuff
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-mongo
+spec:
+  selector:
+    app: spring-mongo
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
+---
+#Deployment stuff
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-mongo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spring-mongo
+  template:
+    metadata:
+      labels:
+        app: spring-mongo
+    spec:
+      containers:
+        - name: app
+          image: nisarg/spring-mongo:1.0.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MONGO_URL
+              value: mongodb://mongodb/people-db
+          imagePullPolicy: Always
