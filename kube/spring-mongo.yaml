@@ -26,9 +26,11 @@ spec:
       labels:
         app: spring-mongo
     spec:
+      imagePullSecrets:
+        - name: my-docker-secret
       containers:
         - name: app
-          image: nisarg/spring-mongo:1.0.0
+          image: docker.io/nisarg/spring-mongo:1.0.0
           ports:
             - containerPort: 8080
           env:
