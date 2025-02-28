@@ -2,10 +2,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: spring-mongo
+  name: spring-mongo-app
 spec:
   selector:
-    app: spring-mongo
+    app: spring-mongo-app
   ports:
     - port: 80
       targetPort: 8080
@@ -15,22 +15,22 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spring-mongo
+  name: spring-mongo-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: spring-mongo
+      app: spring-mongo-app
   template:
     metadata:
       labels:
-        app: spring-mongo
+        app: spring-mongo-app
     spec:
       imagePullSecrets:
         - name: my-docker-secret
       containers:
         - name: app
-          image: docker.io/nisarg/spring-mongo:1.0.0
+          image: docker.io/nisarg/spring-mongo-app:1.0.0
           ports:
             - containerPort: 8080
           env:
