@@ -1,7 +1,8 @@
 services:
   sb-app:
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,12 +11,6 @@ services:
       - SERVER_PORT=8080
       - SPRING_DATA_MONGODB_URI=mongodb://user1:user1@mongodb:27017/people-db?authSource=admin
       - SPRING_APPLICATION_NAME=SpringMongoDB
-      - SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE=admin
-      - SPRING_DATA_MONGODB_HOST=mongodb
-      - SPRING_DATA_MONGODB_PORT=27017
-      - SPRING_DATA_MONGODB_USERNAME=user1
-      - SPRING_DATA_MONGODB_PASSWORD=user1
-      - SPRING_DATA_MONGODB_DATABASE=people-db
     ports:
       - 8080:8080
     networks:
@@ -23,21 +18,19 @@ services:
   mongodb:
     image: mongo:latest
     container_name: "mongodb"
-    hostname: "mongodb"
     environment:
+      - MONGODB_HOST=mongodb
       - MONGO_INITDB_ROOT_USERNAME=user1
       - MONGO_INITDB_ROOT_PASSWORD=user1
       - MONGO_INITDB_DATABASE=people-db
-      - MONGO_DB_USERNAME=user1
-      - MONGO_DB_PASSWORD=user1
     ports:
       - 27017:27017
-    command: [ "--bind_ip", "0.0.0.0" ]
+    command: [ "--bind_ip_all"]
     healthcheck:
-      test: [ "CMD", "mongosh", "mongodb://user1:user1@mongodb:27017/admin", "--eval", "db.runCommand({ ping: 1 })" ]
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
       interval: 10s
       retries: 5
-      start_period: 30s
+      start_period: 40s
     volumes:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
@@ -52,8 +45,6 @@ services:
       - ME_CONFIG_MONGODB_SERVER=mongodb
       - ME_CONFIG_MONGODB_ADMINUSERNAME=user1
       - ME_CONFIG_MONGODB_ADMINPASSWORD=user1
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
     ports:
       - 8081:8081
     networks:
@@ -61,3 +52,4 @@ services:
 networks:
   spring-mongo-network:
     driver: bridge
+    name: spring-mongo-network
